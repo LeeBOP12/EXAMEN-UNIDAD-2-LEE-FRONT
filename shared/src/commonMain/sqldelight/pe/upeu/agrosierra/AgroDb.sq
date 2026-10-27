@@ -1,0 +1,112 @@
+CREATE TABLE lote (
+    id INTEGER NOT NULL PRIMARY KEY,
+    codigo TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    hectareas REAL NOT NULL,
+    cultivo TEXT NOT NULL,
+    valle TEXT NOT NULL,
+    campaniaCerrada INTEGER NOT NULL,
+    dosisMaxima REAL NOT NULL
+);
+
+CREATE TABLE labor (
+    id INTEGER NOT NULL PRIMARY KEY,
+    loteId INTEGER NOT NULL,
+    tipo TEXT NOT NULL,
+    fecha TEXT NOT NULL,
+    responsable TEXT NOT NULL,
+    responsableUsuario TEXT NOT NULL,
+    cantidad REAL NOT NULL,
+    cantidadJornales INTEGER NOT NULL,
+    observacion TEXT NOT NULL,
+    fechaRegistro TEXT NOT NULL,
+    puedeEditar INTEGER NOT NULL,
+    pendiente INTEGER NOT NULL,
+    operacion TEXT,
+    eliminado INTEGER NOT NULL DEFAULT 0
+);
+
+CREATE TABLE estado_sincronizacion (
+    id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+    ultima_correcta INTEGER
+);
+
+CREATE TABLE sesion_local (
+    id INTEGER NOT NULL PRIMARY KEY CHECK (id = 1),
+    usuario TEXT NOT NULL,
+    nombre TEXT NOT NULL,
+    rol TEXT NOT NULL,
+    privilegios TEXT NOT NULL
+);
+
+observarLotes:
+SELECT * FROM lote ORDER BY valle, codigo;
+
+obtenerLote:
+SELECT * FROM lote WHERE id = ?;
+
+borrarLotes:
+DELETE FROM lote;
+
+guardarLote:
+INSERT OR REPLACE INTO lote(
+    id, codigo, nombre, hectareas, cultivo, valle, campaniaCerrada, dosisMaxima
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+
+observarLaboresPorLote:
+SELECT * FROM labor
+WHERE loteId = ? AND eliminado = 0
+ORDER BY fecha DESC, id DESC;
+
+obtenerLabor:
+SELECT * FROM labor WHERE id = ?;
+
+obtenerPendientes:
+SELECT * FROM labor
+WHERE pendiente = 1
+ORDER BY CASE operacion WHEN 'ELIMINAR' THEN 3 WHEN 'ACTUALIZAR' THEN 2 ELSE 1 END, id;
+
+observarPendientesPorLote:
+SELECT loteId, COUNT(*) AS cantidad
+FROM labor
+WHERE pendiente = 1 AND eliminado = 0
+GROUP BY loteId;
+
+siguienteIdLocal:
+SELECT COALESCE(MIN(id), 0) FROM labor;
+
+guardarLabor:
+INSERT OR REPLACE INTO labor(
+    id, loteId, tipo, fecha, responsable, responsableUsuario, cantidad,
+    cantidadJornales, observacion, fechaRegistro, puedeEditar,
+    pendiente, operacion, eliminado
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+
+actualizarLabor:
+UPDATE labor SET
+    loteId = ?, tipo = ?, fecha = ?, responsable = ?, responsableUsuario = ?,
+    cantidad = ?, cantidadJornales = ?, observacion = ?, fechaRegistro = ?,
+    puedeEditar = ?, pendiente = ?, operacion = ?, eliminado = ?
+WHERE id = ?;
+
+borrarLabor:
+DELETE FROM labor WHERE id = ?;
+
+borrarLaboresConfirmadasPorLote:
+DELETE FROM labor WHERE loteId = ? AND pendiente = 0;
+
+guardarSincronizacion:
+INSERT OR REPLACE INTO estado_sincronizacion(id, ultima_correcta) VALUES (1, ?);
+
+obtenerUltimaSincronizacion:
+SELECT ultima_correcta FROM estado_sincronizacion WHERE id = 1;
+
+guardarSesion:
+INSERT OR REPLACE INTO sesion_local(id, usuario, nombre, rol, privilegios)
+VALUES (1, ?, ?, ?, ?);
+
+obtenerSesion:
+SELECT * FROM sesion_local WHERE id = 1;
+
+borrarSesion:
+DELETE FROM sesion_local;
