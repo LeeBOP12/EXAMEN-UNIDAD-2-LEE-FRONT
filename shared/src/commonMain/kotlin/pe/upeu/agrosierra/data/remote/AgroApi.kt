@@ -33,6 +33,7 @@ class AgroApi(
                 }
             }
             acumulado += respuesta.contenido
+            if (respuesta.contenido.isEmpty()) break
             pagina++
         } while (!respuesta.ultima)
         return acumulado
@@ -49,6 +50,7 @@ class AgroApi(
                 }
             }
             acumulado += respuesta.contenido
+            if (respuesta.contenido.isEmpty()) break
             pagina++
         } while (!respuesta.ultima)
         return acumulado
