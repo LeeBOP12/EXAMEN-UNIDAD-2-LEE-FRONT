@@ -1,6 +1,7 @@
 package pe.upeu.agrosierra.data.repository
 
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CancellationException
 import pe.upeu.agrosierra.data.local.BaseLocal
 import pe.upeu.agrosierra.data.local.ahoraMillis
 import pe.upeu.agrosierra.data.remote.AgroApi
@@ -111,6 +112,8 @@ class CampoRepositorioOffline(
                         }
                         correctos++
                     } catch (e: AgroException.NoAutorizado) {
+                        throw e
+                    } catch (e: CancellationException) {
                         throw e
                     } catch (e: Exception) {
                         errores++
