@@ -249,6 +249,7 @@ fun LotesScreen(
                         CircularProgressIndicator()
                     }
                     ui.vacio -> EstadoVacio()
+                    ui.sinResultados -> EstadoSinResultados(viewModel::limpiarFiltros)
                     else -> {
                         Text(
                             ui.lotes.size.toString() + " lote(s) encontrados",
@@ -298,6 +299,40 @@ private fun EstadoVacio() {
             "Prueba cambiando la búsqueda o los filtros.",
             color = colores.onSurfaceVariant
         )
+    }
+}
+
+@Composable
+private fun EstadoSinResultados(limpiarFiltros: () -> Unit) {
+    val colores = MaterialTheme.colorScheme
+    Column(
+        modifier = Modifier.fillMaxSize().padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Surface(
+            modifier = Modifier.size(82.dp),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = colores.primaryContainer
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    Icons.Default.SearchOff,
+                    contentDescription = null,
+                    modifier = Modifier.size(42.dp),
+                    tint = colores.primary
+                )
+            }
+        }
+        Spacer(Modifier.height(18.dp))
+        Text("No hay lotes con estos filtros", style = MaterialTheme.typography.titleLarge)
+        Text(
+            "Prueba con otro valle, búsqueda o estado de campaña.",
+            color = colores.onSurfaceVariant
+        )
+        TextButton(onClick = limpiarFiltros) {
+            Text("Limpiar filtros")
+        }
     }
 }
 
