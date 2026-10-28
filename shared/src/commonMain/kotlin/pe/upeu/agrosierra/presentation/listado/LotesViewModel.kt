@@ -81,6 +81,11 @@ class LotesViewModel(
     fun buscar(valor: String) { busqueda.value = valor }
     fun filtrarValle(valor: String) { valle.value = valor }
     fun alternarSoloAbiertas() { soloAbiertas.value = !soloAbiertas.value }
+    fun limpiarFiltros() {
+        busqueda.value = ""
+        valle.value = ""
+        soloAbiertas.value = false
+    }
 
     fun sincronizar() {
         if (estadoProceso.value.sincronizando) return
