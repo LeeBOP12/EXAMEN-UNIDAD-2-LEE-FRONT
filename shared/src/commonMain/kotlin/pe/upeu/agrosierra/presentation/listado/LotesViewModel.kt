@@ -14,6 +14,7 @@ data class LotesUiState(
     val cargando: Boolean = true,
     val sincronizando: Boolean = false,
     val lotes: List<Lote> = emptyList(),
+    val totalLotesLocales: Int = 0,
     val vallesDisponibles: List<String> = emptyList(),
     val busqueda: String = "",
     val valle: String = "",
@@ -22,7 +23,9 @@ data class LotesUiState(
     val resumenSincronizacion: String? = null,
     val error: String? = null
 ) {
-    val vacio get() = !cargando && lotes.isEmpty() && error == null
+    val vacio get() = !cargando && totalLotesLocales == 0 && error == null
+    val sinResultados get() =
+        !cargando && totalLotesLocales > 0 && lotes.isEmpty() && error == null
 }
 
 private data class Filtros(
@@ -51,6 +54,7 @@ class LotesViewModel(
             lotes = filtrarLotes(
                 todos, filtro.busqueda, filtro.valle, filtro.soloAbiertas
             ),
+            totalLotesLocales = todos.size,
             vallesDisponibles = todos.map(Lote::valle).distinct().sorted(),
             busqueda = filtro.busqueda,
             valle = filtro.valle,
@@ -77,6 +81,11 @@ class LotesViewModel(
     fun buscar(valor: String) { busqueda.value = valor }
     fun filtrarValle(valor: String) { valle.value = valor }
     fun alternarSoloAbiertas() { soloAbiertas.value = !soloAbiertas.value }
+    fun limpiarFiltros() {
+        busqueda.value = ""
+        valle.value = ""
+        soloAbiertas.value = false
+    }
 
     fun sincronizar() {
         if (estadoProceso.value.sincronizando) return
