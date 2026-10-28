@@ -6,6 +6,7 @@ import io.ktor.client.request.*
 import io.ktor.client.plugins.HttpRequestTimeoutException
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import kotlinx.coroutines.CancellationException
 import pe.upeu.agrosierra.data.remote.dto.*
 import pe.upeu.agrosierra.domain.model.AgroException
 import pe.upeu.agrosierra.domain.model.Labor
@@ -32,6 +33,7 @@ class AgroApi(
                 }
             }
             acumulado += respuesta.contenido
+            if (respuesta.contenido.isEmpty()) break
             pagina++
         } while (!respuesta.ultima)
         return acumulado
@@ -48,6 +50,7 @@ class AgroApi(
                 }
             }
             acumulado += respuesta.contenido
+            if (respuesta.contenido.isEmpty()) break
             pagina++
         } while (!respuesta.ultima)
         return acumulado
@@ -78,6 +81,8 @@ class AgroApi(
             peticion()
         } catch (_: HttpRequestTimeoutException) {
             throw AgroException.TiempoAgotado()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw AgroException.SinConexion()
         }
@@ -92,6 +97,8 @@ class AgroApi(
             peticion()
         } catch (_: HttpRequestTimeoutException) {
             throw AgroException.TiempoAgotado()
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             throw AgroException.SinConexion()
         }
